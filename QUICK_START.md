@@ -29,7 +29,13 @@ You should see:
 python quick_demo.py
 ```
 
-This will fetch real posts from XiaoHongShu using your cookies!
+This comprehensive demo showcases ALL available APIs:
+- 📱 Homefeed (trending posts)
+- 🔍 Search for any keyword
+- 👤 Get posts from specific users
+- 📄 Fetch detailed note information
+- 💬 Read comments on posts
+- 🔗 Find related/similar posts
 
 ## 🍪 To Access Real Data
 
