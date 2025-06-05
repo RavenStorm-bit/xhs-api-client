@@ -1,0 +1,307 @@
+#!/usr/bin/env python3
+"""
+XiaoHongShu API Client - Main Interface
+
+A comprehensive client for interacting with XiaoHongShu (Little Red Book) API
+using secure token generation from a remote server.
+"""
+
+import json
+import time
+from typing import Dict, List, Optional, Any, Tuple
+from pathlib import Path
+import logging
+
+from token_manager import TokenManager
+from homefeed_refactored import HomefeedAPI
+
+
+class XHSClient:
+    """
+    Main XiaoHongShu API Client
+    
+    This client provides a unified interface to all XiaoHongShu APIs
+    with automatic token management and response logging.
+    """
+    
+    def __init__(
+        self,
+        token_server_url: str,
+        api_key: str,
+        cookies_path: str = "cookies.json",
+        enable_logging: bool = True,
+        log_dir: str = "api_logs"
+    ):
+        """
+        Initialize XHS Client
+        
+        Args:
+            token_server_url: URL of the token generation server
+            api_key: API key for token server authentication
+            cookies_path: Path to cookies.json file
+            enable_logging: Whether to log API responses
+            log_dir: Directory for API response logs
+        """
+        # Initialize token manager
+        self.token_manager = TokenManager(
+            server_url=token_server_url,
+            api_key=api_key
+        )
+        
+        # Check server health
+        if not self.token_manager.health_check():
+            raise ConnectionError("Token server is not responding")
+        
+        # Initialize API clients
+        self.homefeed_api = HomefeedAPI(
+            token_manager=self.token_manager,
+            cookies_path=cookies_path
+        )
+        
+        # Setup logging
+        self.enable_logging = enable_logging
+        if enable_logging:
+            self.log_dir = Path(log_dir)
+            self.log_dir.mkdir(exist_ok=True)
+            self._setup_logging()
+    
+    def _setup_logging(self):
+        """Setup logging configuration"""
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        self.logger = logging.getLogger('XHSClient')
+    
+    def _log_response(self, api_type: str, response: Dict, metadata: Dict = None):
+        """Log API response to file"""
+        if not self.enable_logging:
+            return
+        
+        timestamp = int(time.time() * 1000)
+        filename = f"{api_type}_{timestamp}.json"
+        filepath = self.log_dir / filename
+        
+        log_data = {
+            "timestamp": timestamp,
+            "api_type": api_type,
+            "metadata": metadata or {},
+            "response": response
+        }
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(log_data, f, ensure_ascii=False, indent=2)
+        
+        self.logger.info(f"Response logged to: {filepath}")
+    
+    # === Homefeed API ===
+    
+    def get_homefeed(
+        self,
+        num: int = 20,
+        cursor: str = "",
+        refresh_type: int = 1
+    ) -> Dict[str, Any]:
+        """
+        Get homefeed posts
+        
+        Args:
+            num: Number of posts to fetch (max 20)
+            cursor: Pagination cursor
+            refresh_type: 1 for refresh, 3 for load more
+            
+        Returns:
+            API response with posts data
+        """
+        self.logger.info(f"Fetching homefeed: num={num}, cursor={cursor}")
+        
+        response = self.homefeed_api.fetch_homefeed(
+            cursor_score=cursor,
+            num=num,
+            refresh_type=refresh_type
+        )
+        
+        self._log_response("homefeed", response, {
+            "num": num,
+            "cursor": cursor,
+            "refresh_type": refresh_type
+        })
+        
+        return response
+    
+    def get_homefeed_posts(self, num: int = 20) -> List[Dict]:
+        """
+        Get homefeed posts (simplified)
+        
+        Returns:
+            List of post items
+        """
+        response = self.get_homefeed(num=num)
+        return response.get("data", {}).get("items", [])
+    
+    # === Search API ===
+    
+    def search(
+        self,
+        keyword: str,
+        page: int = 1,
+        page_size: int = 20,
+        sort: str = "general"
+    ) -> Dict[str, Any]:
+        """
+        Search for posts
+        
+        Args:
+            keyword: Search keyword
+            page: Page number (1-based)
+            page_size: Results per page (must be 20)
+            sort: Sort order (general, time_descending, popularity_descending)
+            
+        Returns:
+            Search results
+        """
+        # TODO: Implement SearchAPI client
+        raise NotImplementedError("Search API client not yet implemented")
+    
+    # === Comments API ===
+    
+    def get_comments(
+        self,
+        note_id: str,
+        xsec_token: str,
+        cursor: str = ""
+    ) -> Dict[str, Any]:
+        """
+        Get comments for a note
+        
+        Args:
+            note_id: Note ID
+            xsec_token: Security token from homefeed
+            cursor: Pagination cursor
+            
+        Returns:
+            Comments data
+        """
+        # TODO: Implement CommentsAPI client
+        raise NotImplementedError("Comments API client not yet implemented")
+    
+    # === Utility Methods ===
+    
+    def browse_note(self, note_item: Dict) -> Dict[str, Any]:
+        """
+        Browse a specific note with its comments
+        
+        Args:
+            note_item: Note item from homefeed
+            
+        Returns:
+            Dict with note details and comments
+        """
+        note_id = note_item.get("id")
+        xsec_token = note_item.get("xsec_token")
+        
+        if not note_id or not xsec_token:
+            return {"error": "Missing note_id or xsec_token"}
+        
+        # Get comments
+        comments = self.get_comments(note_id, xsec_token)
+        
+        return {
+            "note": note_item,
+            "comments": comments
+        }
+    
+    def extract_note_info(self, note_item: Dict) -> Dict[str, Any]:
+        """
+        Extract key information from a note item
+        
+        Args:
+            note_item: Note item from API response
+            
+        Returns:
+            Simplified note information
+        """
+        note_card = note_item.get("note_card", {})
+        user_info = note_card.get("user", {})
+        interact_info = note_card.get("interact_info", {})
+        
+        return {
+            "id": note_item.get("id"),
+            "title": note_card.get("display_title", ""),
+            "desc": note_card.get("desc", ""),
+            "type": note_card.get("type", ""),
+            "author": {
+                "nickname": user_info.get("nickname", ""),
+                "user_id": user_info.get("user_id", "")
+            },
+            "stats": {
+                "likes": interact_info.get("liked_count", 0),
+                "comments": interact_info.get("comment_count", 0),
+                "collects": interact_info.get("collected_count", 0),
+                "shares": interact_info.get("share_count", 0)
+            },
+            "has_token": bool(note_item.get("xsec_token"))
+        }
+    
+    def save_response(self, data: Any, filename: str):
+        """
+        Save API response to file
+        
+        Args:
+            data: Response data
+            filename: Output filename
+        """
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        self.logger.info(f"Response saved to: {filename}")
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get token server statistics"""
+        return self.token_manager.get_stats()
+
+
+# === Example Usage ===
+
+def main():
+    """Example usage of XHS Client"""
+    
+    # Initialize client
+    client = XHSClient(
+        token_server_url="https://your-token-server.com:8443",
+        api_key="your-api-key",
+        cookies_path="cookies.json",
+        enable_logging=True
+    )
+    
+    print("=== XiaoHongShu API Client Demo ===\n")
+    
+    # 1. Get homefeed
+    print("1. Fetching homefeed...")
+    posts = client.get_homefeed_posts(num=5)
+    print(f"   ✓ Got {len(posts)} posts\n")
+    
+    # 2. Display posts
+    print("2. Posts summary:")
+    for i, post in enumerate(posts):
+        info = client.extract_note_info(post)
+        print(f"   {i+1}. {info['title']}")
+        print(f"      Author: {info['author']['nickname']}")
+        print(f"      Stats: {info['stats']['likes']} likes, {info['stats']['comments']} comments")
+        print()
+    
+    # 3. Save data
+    print("3. Saving responses...")
+    client.save_response(posts, "demo_homefeed.json")
+    
+    # 4. Show server stats
+    print("\n4. Token server stats:")
+    stats = client.get_stats()
+    print(f"   Client: {stats.get('client')}")
+    print(f"   Rate limit: {stats.get('rate_limit')}")
+    print(f"   Cache available: {stats.get('cache_available')}")
+    
+    print("\n✓ Demo complete!")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,41 @@
+# Sensitive files
+cookies.json
+cookies.txt
+config.json
+*.cookie
+
+# API logs and responses
+*.log
+api_logs/
+data/
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+test_*.json
+demo_*.json
+*_test.json
+
+# Temporary files
+*.tmp
+*.bak
+~*

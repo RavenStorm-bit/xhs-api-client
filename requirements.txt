@@ -1,0 +1,14 @@
+# XiaoHongShu API Client Requirements
+
+# Core dependencies
+requests>=2.31.0
+curl-cffi>=0.5.9
+urllib3>=1.26.0
+
+# Optional dependencies for development
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
+
+# Note: pycryptodome is NOT required for the client
+# Token generation happens on the server side
