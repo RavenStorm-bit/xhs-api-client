@@ -26,9 +26,9 @@ class XHSClient:
     
     def __init__(
         self,
-        token_server_url: str,
-        api_key: str,
         cookies_path: str = "cookies.json",
+        token_server_url: str = "https://31.97.132.244:8443",
+        api_key: str = "dev-key-123",
         enable_logging: bool = True,
         log_dir: str = "api_logs"
     ):
@@ -36,11 +36,14 @@ class XHSClient:
         Initialize XHS Client
         
         Args:
-            token_server_url: URL of the token generation server
-            api_key: API key for token server authentication
-            cookies_path: Path to cookies.json file
-            enable_logging: Whether to log API responses
-            log_dir: Directory for API response logs
+            cookies_path: Path to cookies.json file (default: "cookies.json")
+            token_server_url: URL of the token generation server (default: public demo server)
+            api_key: API key for token server authentication (default: demo key)
+            enable_logging: Whether to log API responses (default: True)
+            log_dir: Directory for API response logs (default: "api_logs")
+            
+        Note: The default server has rate limits (1000 req/hour). For production use,
+              deploy your own server or contact us for higher limits.
         """
         # Initialize token manager
         self.token_manager = TokenManager(
@@ -265,13 +268,8 @@ class XHSClient:
 def main():
     """Example usage of XHS Client"""
     
-    # Initialize client
-    client = XHSClient(
-        token_server_url="https://your-token-server.com:8443",
-        api_key="your-api-key",
-        cookies_path="cookies.json",
-        enable_logging=True
-    )
+    # Super simple - just need cookies.json!
+    client = XHSClient()
     
     print("=== XiaoHongShu API Client Demo ===\n")
     

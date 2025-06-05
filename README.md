@@ -7,15 +7,26 @@ A secure Python client for XiaoHongShu (Little Red Book / 小红书) API with to
 
 ## 🎯 Try It Now!
 
+### Super Quick Start (30 seconds!)
+
+1. **Get your cookies** from xiaohongshu.com (see guide below)
+2. **Save as cookies.json** in this folder
+3. **Run:**
+   ```bash
+   python quick_demo.py
+   ```
+
+That's it! No configuration needed. We handle everything else.
+
+### Advanced Demos
+
 ```bash
-# Test the demo server
+# Test the server connection
 python test_server.py
 
-# Run the interactive demo
+# See how tokens work (no cookies needed)
 python demo.py
 ```
-
-We provide a **demo token server** for testing! You can immediately see how the API works without setting up your own server. The demo server has rate limits - for production use, you'll need to deploy your own server.
 
 ## 🚨 Important Notice
 
@@ -62,27 +73,31 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-### 🚀 Try the Demo First!
-
-```bash
-# See it in action immediately
-python demo.py
-```
-
-### 1. Initialize Token Manager
+### 🚀 Simplest Usage (Recommended)
 
 ```python
-from token_manager import TokenManager
+from xhs_client import XHSClient
 
-# For testing - use our demo server
-token_manager = TokenManager(
-    server_url="https://31.97.132.244:8443",  # Demo server
-    api_key="dev-key-123"                      # Demo API key
-)
+# Just need cookies.json in your folder!
+client = XHSClient()
 
-# For production - use your own server
-token_manager = TokenManager(
-    server_url="https://your-token-server.com:8443",
+# Get posts
+posts = client.get_homefeed_posts(num=20)
+
+# That's it! 🎉
+```
+
+### 📂 All You Need
+
+1. **cookies.json** - Your XiaoHongShu cookies (see guide below)
+2. That's it! The client uses our demo server automatically.
+
+### Advanced Configuration (Optional)
+
+```python
+# Use your own token server
+client = XHSClient(
+    token_server_url="https://your-server.com:8443",
     api_key="your-api-key"
 )
 ```
@@ -239,6 +254,17 @@ Contributions are welcome! Please:
 ## License
 
 MIT License - See LICENSE file for details
+
+## Rate Limits
+
+The default demo server has a rate limit of **1000 requests/hour** shared among all users.
+
+Need more? Contact us for:
+- 🚀 **Dedicated server** with higher limits
+- 💼 **Enterprise access** with custom quotas  
+- 🔧 **Self-hosted solution** deployment help
+
+📧 Contact: [Add your contact info here]
 
 ## Disclaimer
 

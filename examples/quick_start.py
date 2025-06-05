@@ -18,27 +18,10 @@ from xhs_client import XHSClient
 def main():
     """Quick start example"""
     
-    # Configuration
-    # Replace with your token server details
-    TOKEN_SERVER_URL = "https://your-token-server.com:8443"
-    API_KEY = "your-api-key"
-    
-    # Check for config file
-    if os.path.exists("config.json"):
-        with open("config.json") as f:
-            config = json.load(f)
-            TOKEN_SERVER_URL = config["token_server"]["url"]
-            API_KEY = config["token_server"]["api_key"]
-    
     try:
-        # Initialize client
+        # Initialize client - super simple!
         print("Initializing XHS Client...")
-        client = XHSClient(
-            token_server_url=TOKEN_SERVER_URL,
-            api_key=API_KEY,
-            cookies_path="cookies.json",
-            enable_logging=True
-        )
+        client = XHSClient()  # That's all you need!
         
         print("✓ Client initialized successfully!\n")
         
