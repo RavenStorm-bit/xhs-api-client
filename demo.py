@@ -24,6 +24,10 @@ from token_manager import TokenManager
 DEMO_SERVER = "https://31.97.132.244:8443"
 DEMO_API_KEY = "dev-key-123"
 
+# Demo device ID for testing (not linked to any real account)
+# Must be 52 chars with a digit at position -10 for platform code
+DEMO_DEVICE_ID = "188c2ce12d41012345671234567890abcdef1234567890123412"  # 52 chars
+
 
 def print_header(text):
     """Print formatted header"""
@@ -70,10 +74,10 @@ def demo_token_generation():
     
     # Generate X-S-Common token
     print("   Requesting X-S-Common token (device fingerprint)...")
-    print("   Note: Using default device ID (a1) since no cookies provided")
+    print(f"   Using demo device ID: {DEMO_DEVICE_ID[:20]}...")
     try:
         start_time = time.time()
-        xs_common = token_manager.get_xs_common_token()
+        xs_common = token_manager.get_xs_common_token(a1=DEMO_DEVICE_ID)
         elapsed = (time.time() - start_time) * 1000
         
         print(f"   ✅ X-S-Common token received in {elapsed:.0f}ms")
@@ -92,7 +96,8 @@ def demo_token_generation():
         
         xs_token, timestamp = token_manager.get_xs_token(
             endpoint=endpoint,
-            payload=payload
+            payload=payload,
+            a1=DEMO_DEVICE_ID
         )
         elapsed = (time.time() - start_time) * 1000
         
@@ -178,9 +183,10 @@ def demo_token_generation():
     print("3. Deploy your own token server for production use")
     
     print("\n📝 About Device ID (a1):")
-    print("- Each XHS account has a unique device ID in cookies")
-    print("- Demo uses a default ID when no cookies provided")
+    print("- Each XHS account has a unique 52-character device ID in cookies")
+    print("- Demo uses a fake ID for testing token generation")
     print("- Real API calls require your actual device ID from cookies")
+    print("- Server now requires a1 - no default fallback")
     
     print("\n⭐ Star the repo if you found this helpful!")
     print("   https://github.com/RavenStorm-bit/xhs-api-client")

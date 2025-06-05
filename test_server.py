@@ -49,10 +49,14 @@ try:
         "Content-Type": "application/json"
     }
     
+    # Use a demo device ID for testing
+    # Must have a digit at position -10 for platform code
+    demo_a1 = "188c2ce12d41012345671234567890abcdef1234567890123412"  # 52 characters
+    
     response = requests.post(
         f"{SERVER_URL}/api/v1/tokens/xs-common",
         headers=headers,
-        json={},
+        json={"a1": demo_a1},
         verify=False,
         timeout=10
     )
