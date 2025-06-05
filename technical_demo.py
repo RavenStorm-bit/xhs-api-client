@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """
-XHS API Client Demo - Try it now!
+Technical Demo - Understanding Token Generation
 
-This demo uses a public token server to demonstrate the API functionality.
-You can run this immediately to see how the XHS API client works.
+This technical demo shows the behind-the-scenes token generation process.
+For normal usage, use quick_demo.py instead.
+
+This is useful for:
+- Developers who want to understand how tokens work
+- Debugging connection issues
+- Testing without cookies
 
 Note: The demo server has rate limits. For production use, deploy your own server.
 """

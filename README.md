@@ -27,14 +27,14 @@ posts = client.get_homefeed_posts()
 
 That's it! No configuration needed. We handle everything else.
 
-### Advanced Demos
+### For Developers
 
 ```bash
-# Test the server connection
+# Test server connectivity
 python test_server.py
 
-# See how tokens work (no cookies needed)
-python demo.py
+# Technical demo - see how tokens work internally
+python technical_demo.py
 ```
 
 ## 🚨 Important Notice

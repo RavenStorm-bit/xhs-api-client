@@ -23,17 +23,13 @@ You should see:
 ✅ All tests completed!
 ```
 
-### 3. Run the Interactive Demo
+### 3. Run Quick Demo
 
 ```bash
-python demo.py
+python quick_demo.py
 ```
 
-This will show you:
-- How tokens are generated
-- What the tokens look like
-- How they're used in API requests
-- Live server statistics
+This will fetch real posts from XiaoHongShu using your cookies!
 
 ## 🍪 To Access Real Data
 
