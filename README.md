@@ -1,6 +1,15 @@
-# XiaoHongShu API Client
+# XHS API Client
 
-A secure Python client for XiaoHongShu (Little Red Book) API that separates token generation logic from the client code.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+
+A secure Python client for XiaoHongShu (Little Red Book / 小红书) API with token server architecture.
+
+## 🚨 Important Notice
+
+This client requires a **token generation server** (not included) that handles the authentication algorithms. The server code is proprietary and kept separate for security reasons. You need to either:
+- Deploy your own token server implementing the required endpoints
+- Get access to an existing token server
 
 ## Features
 
@@ -26,7 +35,7 @@ A secure Python client for XiaoHongShu (Little Red Book) API that separates toke
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/xhs-api-client.git
+git clone https://github.com/RavenStorm-bit/xhs-api-client.git
 cd xhs-api-client
 
 # Install dependencies
@@ -189,11 +198,10 @@ with open("homefeed_response.json", "w") as f:
 
 ## Examples
 
-See the `examples/` directory for more usage examples:
-- `browse_homefeed.py` - Browse and save homefeed
-- `search_posts.py` - Search with various filters
-- `read_comments.py` - Read post comments
-- `full_workflow.py` - Complete API workflow
+See the `examples/` directory for usage examples:
+- `quick_start.py` - Basic usage example
+
+More examples coming soon!
 
 ## Contributing
 
