@@ -98,8 +98,12 @@ posts = client.get_homefeed_posts(num=20)
 
 ### 📂 All You Need
 
-1. **cookies.json** - Your XiaoHongShu cookies (see guide below)
-2. That's it! The client uses our demo server automatically.
+1. **cookies.json** - Your XiaoHongShu cookies (see [Cookie Guide](COOKIE_GUIDE.md))
+2. That's it! The client handles everything else automatically:
+   - Extracts your device ID from cookies
+   - Connects to our demo token server  
+   - Generates required authentication tokens
+   - Makes API calls to XiaoHongShu
 
 ### Advanced Configuration (Optional)
 
