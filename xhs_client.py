@@ -12,8 +12,12 @@ from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
 import logging
 
-from token_manager import TokenManager
-from homefeed_refactored import HomefeedAPI
+try:
+    from .token_manager import TokenManager
+    from .api import HomefeedAPI, SearchAPI, CommentsAPI, FeedAPI, UserAPI
+except ImportError:
+    from token_manager import TokenManager
+    from api import HomefeedAPI, SearchAPI, CommentsAPI, FeedAPI, UserAPI
 
 
 class XHSClient:
@@ -57,6 +61,22 @@ class XHSClient:
         
         # Initialize API clients
         self.homefeed_api = HomefeedAPI(
+            token_manager=self.token_manager,
+            cookies_path=cookies_path
+        )
+        self.search_api = SearchAPI(
+            token_manager=self.token_manager,
+            cookies_path=cookies_path
+        )
+        self.comments_api = CommentsAPI(
+            token_manager=self.token_manager,
+            cookies_path=cookies_path
+        )
+        self.feed_api = FeedAPI(
+            token_manager=self.token_manager,
+            cookies_path=cookies_path
+        )
+        self.user_api = UserAPI(
             token_manager=self.token_manager,
             cookies_path=cookies_path
         )
@@ -163,15 +183,37 @@ class XHSClient:
         Returns:
             Search results
         """
-        # TODO: Implement SearchAPI client
-        raise NotImplementedError("Search API client not yet implemented")
+        self.logger.info(f"Searching for: {keyword}, page={page}")
+        
+        response = self.search_api.search_notes(
+            keyword=keyword,
+            page=page,
+            page_size=page_size,
+            sort=sort
+        )
+        
+        self._log_response("search", response, {
+            "keyword": keyword,
+            "page": page,
+            "sort": sort
+        })
+        
+        return response
+    
+    def search_notes(self, keyword: str, num: int = 20, sort: str = "general") -> List[Dict]:
+        """
+        Search for notes (simplified)
+        
+        Returns:
+            List of search results
+        """
+        return self.search_api.search(keyword, num, sort)
     
     # === Comments API ===
     
     def get_comments(
         self,
         note_id: str,
-        xsec_token: str,
         cursor: str = ""
     ) -> Dict[str, Any]:
         """
@@ -179,14 +221,102 @@ class XHSClient:
         
         Args:
             note_id: Note ID
-            xsec_token: Security token from homefeed
             cursor: Pagination cursor
             
         Returns:
             Comments data
         """
-        # TODO: Implement CommentsAPI client
-        raise NotImplementedError("Comments API client not yet implemented")
+        self.logger.info(f"Fetching comments for note: {note_id}")
+        
+        response = self.comments_api.fetch_comments(
+            note_id=note_id,
+            cursor=cursor
+        )
+        
+        self._log_response("comments", response, {
+            "note_id": note_id,
+            "cursor": cursor
+        })
+        
+        return response
+    
+    def get_note_comments(self, note_id: str, num: int = 20) -> List[Dict]:
+        """
+        Get comments for a note (simplified)
+        
+        Returns:
+            List of comments
+        """
+        comments = self.comments_api.get_comments(note_id, num)
+        return [self.comments_api.parse_comment(c) for c in comments]
+    
+    # === Feed API (Related Posts) ===
+    
+    def get_related_posts(self, note_id: str, num: int = 10) -> List[Dict]:
+        """
+        Get posts related to a specific note
+        
+        Args:
+            note_id: Source note ID
+            num: Number of related posts to fetch
+            
+        Returns:
+            List of related posts
+        """
+        self.logger.info(f"Fetching related posts for note: {note_id}")
+        
+        posts = self.feed_api.get_related_posts(note_id, num)
+        
+        self._log_response("feed", {"items": posts}, {
+            "note_id": note_id,
+            "num": num
+        })
+        
+        return posts
+    
+    # === User API ===
+    
+    def get_user_posts(self, user_id: str, num: int = 30) -> List[Dict]:
+        """
+        Get posts from a specific user
+        
+        Args:
+            user_id: User ID
+            num: Number of posts to fetch
+            
+        Returns:
+            List of user posts
+        """
+        self.logger.info(f"Fetching posts for user: {user_id}")
+        
+        posts = self.user_api.get_user_posts(user_id, num)
+        
+        self._log_response("user_posts", {"posts": posts}, {
+            "user_id": user_id,
+            "num": num
+        })
+        
+        return posts
+    
+    def get_user_profile(self, user_id: str) -> Dict[str, Any]:
+        """
+        Get user profile information
+        
+        Args:
+            user_id: User ID
+            
+        Returns:
+            User profile data
+        """
+        self.logger.info(f"Fetching profile for user: {user_id}")
+        
+        profile = self.user_api.get_user_profile(user_id)
+        
+        self._log_response("user_profile", profile, {
+            "user_id": user_id
+        })
+        
+        return profile
     
     # === Utility Methods ===
     
@@ -207,7 +337,7 @@ class XHSClient:
             return {"error": "Missing note_id or xsec_token"}
         
         # Get comments
-        comments = self.get_comments(note_id, xsec_token)
+        comments = self.get_comments(note_id)
         
         return {
             "note": note_item,
