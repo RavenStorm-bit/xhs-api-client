@@ -18,6 +18,9 @@ from token_manager import TokenManager
 
 
 # Demo server configuration
+# This is a public demo server for testing purposes
+# Rate limit: 1000 requests/hour shared among all users
+# For production use, deploy your own server!
 DEMO_SERVER = "https://31.97.132.244:8443"
 DEMO_API_KEY = "dev-key-123"
 
