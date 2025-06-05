@@ -39,7 +39,7 @@ class TokenManager:
         
         # Disable SSL verification for self-signed certificates
         # In production, use proper certificates or set verify='/path/to/cert'
-        if server_url.startswith('https') and 'your-token-server.com' in server_url:
+        if server_url.startswith('https') and '31.97.132.244' in server_url:
             self.session.verify = False
             import urllib3
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
