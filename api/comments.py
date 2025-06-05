@@ -17,6 +17,7 @@ class CommentsAPI(BaseAPI):
     def fetch_comments(
         self,
         note_id: str,
+        xsec_token: str,
         cursor: str = "",
         top_comment_id: str = "",
         image_formats: List[str] = None
@@ -36,18 +37,46 @@ class CommentsAPI(BaseAPI):
         if image_formats is None:
             image_formats = ["jpg", "webp", "avif"]
         
-        payload = {
+        # Comments API uses GET with query params, not POST
+        # We need to make a custom request
+        from urllib.parse import urlencode
+        
+        params = {
             "note_id": note_id,
             "cursor": cursor,
             "top_comment_id": top_comment_id,
-            "image_formats": image_formats
+            "image_formats": ",".join(image_formats),
+            "xsec_token": xsec_token
         }
         
-        return self._make_request(self.endpoint, payload)
+        # Build query string
+        query_string = urlencode(params)
+        endpoint_with_params = f"{self.endpoint}?{query_string}"
+        
+        # Get tokens (using empty payload for GET request)
+        x_s, timestamp = self.token_manager.get_xs_token(endpoint_with_params, {}, self.a1)
+        x_s_common = self.token_manager.get_xs_common_token(self.a1)
+        
+        # Build headers
+        headers = self._build_headers(self.endpoint, x_s, x_s_common, timestamp)
+        
+        # Make GET request
+        url = f"{self.base_url}{endpoint_with_params}"
+        response = self.session.get(
+            url,
+            headers=headers,
+            cookies=self.cookies
+        )
+        
+        if response.status_code != 200:
+            raise Exception(f"API request failed: {response.status_code} - {response.text}")
+            
+        return response.json()
     
     def get_comments(
         self,
         note_id: str,
+        xsec_token: str,
         num_comments: int = 20
     ) -> List[Dict]:
         """
@@ -66,6 +95,7 @@ class CommentsAPI(BaseAPI):
         while len(all_comments) < num_comments:
             response = self.fetch_comments(
                 note_id=note_id,
+                xsec_token=xsec_token,
                 cursor=cursor
             )
             

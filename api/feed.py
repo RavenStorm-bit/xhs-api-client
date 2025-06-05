@@ -17,6 +17,7 @@ class FeedAPI(BaseAPI):
     def fetch_related_posts(
         self,
         note_id: str,
+        xsec_token: str,
         num: int = 10,
         ads_per_flow: int = 0,
         tag_info: Dict = None
@@ -37,7 +38,9 @@ class FeedAPI(BaseAPI):
             "source_note_id": note_id,
             "image_scenes": ["CRD_PRV_WEBP", "CRD_WM_WEBP"],
             "num": num,
-            "ads_per_flow": ads_per_flow
+            "ads_per_flow": ads_per_flow,
+            "xsec_source": "pc_feed",
+            "xsec_token": xsec_token
         }
         
         if tag_info:
@@ -48,6 +51,7 @@ class FeedAPI(BaseAPI):
     def get_related_posts(
         self,
         note_id: str,
+        xsec_token: str,
         num_posts: int = 20
     ) -> List[Dict]:
         """
@@ -63,6 +67,7 @@ class FeedAPI(BaseAPI):
         # The feed API usually returns all requested posts in one call
         response = self.fetch_related_posts(
             note_id=note_id,
+            xsec_token=xsec_token,
             num=min(num_posts, 30)  # API limit
         )
         

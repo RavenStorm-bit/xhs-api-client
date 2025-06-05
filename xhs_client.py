@@ -14,10 +14,10 @@ import logging
 
 try:
     from .token_manager import TokenManager
-    from .api import HomefeedAPI, SearchAPI, CommentsAPI, FeedAPI, UserAPI
+    from .api import HomefeedAPI, SearchAPI, CommentsAPI, FeedAPI
 except ImportError:
     from token_manager import TokenManager
-    from api import HomefeedAPI, SearchAPI, CommentsAPI, FeedAPI, UserAPI
+    from api import HomefeedAPI, SearchAPI, CommentsAPI, FeedAPI
 
 
 class XHSClient:
@@ -76,10 +76,11 @@ class XHSClient:
             token_manager=self.token_manager,
             cookies_path=cookies_path
         )
-        self.user_api = UserAPI(
-            token_manager=self.token_manager,
-            cookies_path=cookies_path
-        )
+        # TODO: Implement user API
+        # self.user_api = UserAPI(
+        #     token_manager=self.token_manager,
+        #     cookies_path=cookies_path
+        # )
         
         # Setup logging
         self.enable_logging = enable_logging
@@ -214,6 +215,7 @@ class XHSClient:
     def get_comments(
         self,
         note_id: str,
+        xsec_token: str,
         cursor: str = ""
     ) -> Dict[str, Any]:
         """
@@ -230,6 +232,7 @@ class XHSClient:
         
         response = self.comments_api.fetch_comments(
             note_id=note_id,
+            xsec_token=xsec_token,
             cursor=cursor
         )
         
@@ -240,19 +243,19 @@ class XHSClient:
         
         return response
     
-    def get_note_comments(self, note_id: str, num: int = 20) -> List[Dict]:
+    def get_note_comments(self, note_id: str, xsec_token: str, num: int = 20) -> List[Dict]:
         """
         Get comments for a note (simplified)
         
         Returns:
             List of comments
         """
-        comments = self.comments_api.get_comments(note_id, num)
+        comments = self.comments_api.get_comments(note_id, xsec_token, num)
         return [self.comments_api.parse_comment(c) for c in comments]
     
     # === Feed API (Related Posts) ===
     
-    def get_related_posts(self, note_id: str, num: int = 10) -> List[Dict]:
+    def get_related_posts(self, note_id: str, xsec_token: str, num: int = 10) -> List[Dict]:
         """
         Get posts related to a specific note
         
@@ -265,7 +268,7 @@ class XHSClient:
         """
         self.logger.info(f"Fetching related posts for note: {note_id}")
         
-        posts = self.feed_api.get_related_posts(note_id, num)
+        posts = self.feed_api.get_related_posts(note_id, xsec_token, num)
         
         self._log_response("feed", {"items": posts}, {
             "note_id": note_id,
@@ -275,48 +278,49 @@ class XHSClient:
         return posts
     
     # === User API ===
+    # TODO: Implement user endpoints
     
-    def get_user_posts(self, user_id: str, num: int = 30) -> List[Dict]:
-        """
-        Get posts from a specific user
-        
-        Args:
-            user_id: User ID
-            num: Number of posts to fetch
-            
-        Returns:
-            List of user posts
-        """
-        self.logger.info(f"Fetching posts for user: {user_id}")
-        
-        posts = self.user_api.get_user_posts(user_id, num)
-        
-        self._log_response("user_posts", {"posts": posts}, {
-            "user_id": user_id,
-            "num": num
-        })
-        
-        return posts
-    
-    def get_user_profile(self, user_id: str) -> Dict[str, Any]:
-        """
-        Get user profile information
-        
-        Args:
-            user_id: User ID
-            
-        Returns:
-            User profile data
-        """
-        self.logger.info(f"Fetching profile for user: {user_id}")
-        
-        profile = self.user_api.get_user_profile(user_id)
-        
-        self._log_response("user_profile", profile, {
-            "user_id": user_id
-        })
-        
-        return profile
+    # def get_user_posts(self, user_id: str, num: int = 30) -> List[Dict]:
+    #     """
+    #     Get posts from a specific user
+    #     
+    #     Args:
+    #         user_id: User ID
+    #         num: Number of posts to fetch
+    #         
+    #     Returns:
+    #         List of user posts
+    #     """
+    #     self.logger.info(f"Fetching posts for user: {user_id}")
+    #     
+    #     posts = self.user_api.get_user_posts(user_id, num)
+    #     
+    #     self._log_response("user_posts", {"posts": posts}, {
+    #         "user_id": user_id,
+    #         "num": num
+    #     })
+    #     
+    #     return posts
+    # 
+    # def get_user_profile(self, user_id: str) -> Dict[str, Any]:
+    #     """
+    #     Get user profile information
+    #     
+    #     Args:
+    #         user_id: User ID
+    #         
+    #     Returns:
+    #         User profile data
+    #     """
+    #     self.logger.info(f"Fetching profile for user: {user_id}")
+    #     
+    #     profile = self.user_api.get_user_profile(user_id)
+    #     
+    #     self._log_response("user_profile", profile, {
+    #         "user_id": user_id
+    #     })
+    #     
+    #     return profile
     
     # === Utility Methods ===
     
@@ -337,7 +341,7 @@ class XHSClient:
             return {"error": "Missing note_id or xsec_token"}
         
         # Get comments
-        comments = self.get_comments(note_id)
+        comments = self.get_comments(note_id, xsec_token)
         
         return {
             "note": note_item,

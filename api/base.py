@@ -49,7 +49,7 @@ class BaseAPI:
             raise ValueError("Device ID (a1) not found in cookies")
         return a1
     
-    def _build_headers(self, endpoint: str, x_s: str, x_s_common: str) -> Dict[str, str]:
+    def _build_headers(self, endpoint: str, x_s: str, x_s_common: str, x_t: int) -> Dict[str, str]:
         """Build request headers"""
         return {
             "accept": "application/json, text/plain, */*",
@@ -60,7 +60,7 @@ class BaseAPI:
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
             "x-s": x_s,
             "x-s-common": x_s_common,
-            "x-t": str(x_s_common.split("H0c1Pa")[0].split("PsHCP")[1])  # Extract timestamp
+            "x-t": str(x_t)
         }
     
     def _make_request(self, endpoint: str, payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -76,10 +76,10 @@ class BaseAPI:
         """
         # Get tokens from server
         x_s, timestamp = self.token_manager.get_xs_token(endpoint, payload, self.a1)
-        x_s_common = self.token_manager.get_xs_common_token(self.a1, timestamp)
+        x_s_common = self.token_manager.get_xs_common_token(self.a1)
         
         # Build headers
-        headers = self._build_headers(endpoint, x_s, x_s_common)
+        headers = self._build_headers(endpoint, x_s, x_s_common, timestamp)
         
         # Make request
         url = f"{self.base_url}{endpoint}"

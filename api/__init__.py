@@ -9,7 +9,7 @@ from .homefeed import HomefeedAPI
 from .search import SearchAPI
 from .comments import CommentsAPI
 from .feed import FeedAPI
-from .user import UserAPI
+# from .user import UserAPI  # TODO: Implement user endpoints
 
 __all__ = [
     "BaseAPI",
@@ -17,5 +17,5 @@ __all__ = [
     "SearchAPI",
     "CommentsAPI",
     "FeedAPI",
-    "UserAPI"
+    # "UserAPI"  # TODO: Implement user endpoints
 ]

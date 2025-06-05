@@ -51,35 +51,22 @@ if search_results:
         info = client.extract_note_info(post)
         print(f"  {i}. {info['title']}")
 
-# ========== 3. USER POSTS API ==========
-print("\n\n👤 DEMO 3: User Posts & Profile")
+# ========== 3. USER API (TODO) ==========
+print("\n\n👤 DEMO 3: User API")
 print("-"*50)
-
-if 'user_id' in locals():
-    print(f"Fetching profile for user: {user_id}")
-    
-    # Get user profile
-    profile = client.get_user_profile(user_id)
-    print(f"\nUser Profile:")
-    print(f"  Nickname: {profile['nickname']}")
-    print(f"  Followers: {profile['fans']:,}")
-    print(f"  Following: {profile['follows']:,}")
-    print(f"  Posts: {profile['note_count']}")
-    
-    # Get user posts
-    user_posts = client.get_user_posts(user_id, num=3)
-    print(f"\n✅ Found {len(user_posts)} posts from this user")
-    
-    for i, post in enumerate(user_posts[:2], 1):
-        print(f"  {i}. {post.get('display_title', 'Untitled')}")
+print("⚠️  User API endpoints not yet implemented")
+print("   Coming soon: user profiles and user posts")
 
 # ========== 4. COMMENTS API ==========
 print("\n\n💬 DEMO 4: Comments API")
 print("-"*50)
 
-if 'note_id' in locals():
+if 'note_id' in locals() and 'first_post' in locals() and first_post.get('xsec_token'):
+    xsec_token = first_post['xsec_token']
     print(f"Fetching comments for note: {note_id}")
-    comments = client.get_note_comments(note_id, num=5)
+    print(f"Using xsec_token: {xsec_token[:30]}...")
+    
+    comments = client.get_note_comments(note_id, xsec_token, num=5)
     print(f"✅ Found {len(comments)} comments")
     
     for i, comment in enumerate(comments[:3], 1):
@@ -87,20 +74,26 @@ if 'note_id' in locals():
         print(f"    User: @{comment['user_nickname']}")
         print(f"    Text: {comment['content'][:50]}...")
         print(f"    Likes: {comment['like_count']}")
+else:
+    print("⚠️  No xsec_token available for comments")
 
 # ========== 5. RELATED POSTS API ==========
 print("\n\n🔗 DEMO 5: Related Posts (Feed API)")
 print("-"*50)
 
-if 'note_id' in locals():
+if 'note_id' in locals() and 'first_post' in locals() and first_post.get('xsec_token'):
+    xsec_token = first_post['xsec_token']
     print(f"Finding posts related to: {note_id}")
-    related_posts = client.get_related_posts(note_id, num=5)
+    
+    related_posts = client.get_related_posts(note_id, xsec_token, num=5)
     print(f"✅ Found {len(related_posts)} related posts")
     
     for i, post in enumerate(related_posts[:3], 1):
         info = client.extract_note_info(post)
         print(f"  {i}. {info['title']}")
         print(f"     by @{info['author']['nickname']}")
+else:
+    print("⚠️  No xsec_token available for related posts")
 
 # ========== 6. COMPLETE WORKFLOW EXAMPLE ==========
 print("\n\n🎯 DEMO 6: Complete Workflow")
@@ -117,21 +110,26 @@ if results:
     post_info = client.extract_note_info(post)
     print(f"   Found: {post_info['title']}")
     
-    # Step 2: Get the author's profile
+    # Step 2: Get author info from post
     author_id = post_info['author']['user_id']
-    print(f"\n2️⃣ Checking author's profile...")
-    author_profile = client.get_user_profile(author_id)
-    print(f"   Author: {author_profile['nickname']} ({author_profile['fans']} followers)")
+    print(f"\n2️⃣ Author info from post:")
+    print(f"   Author: {post_info['author']['nickname']} (@{author_id})")
     
-    # Step 3: Get related posts
+    # Step 3: Get related posts (if we have xsec_token)
     print(f"\n3️⃣ Finding related posts...")
-    related = client.get_related_posts(post_info['id'], num=3)
-    print(f"   Found {len(related)} related posts")
+    if post.get('xsec_token'):
+        related = client.get_related_posts(post_info['id'], post['xsec_token'], num=3)
+        print(f"   Found {len(related)} related posts")
+    else:
+        print("   No xsec_token available for this post")
     
-    # Step 4: Check comments
+    # Step 4: Check comments (if we have xsec_token)
     print(f"\n4️⃣ Reading comments...")
-    post_comments = client.get_note_comments(post_info['id'], num=2)
-    print(f"   Found {len(post_comments)} comments")
+    if post.get('xsec_token'):
+        post_comments = client.get_note_comments(post_info['id'], post['xsec_token'], num=2)
+        print(f"   Found {len(post_comments)} comments")
+    else:
+        print("   No xsec_token available for this post")
 
 # ========== SAVE DATA ==========
 print("\n\n💾 Saving Demo Data")
@@ -158,10 +156,11 @@ print("="*60)
 print("\n📊 Available APIs:")
 print("  ✓ Homefeed - Get trending posts")
 print("  ✓ Search - Search for any content")
-print("  ✓ User Posts - Get posts from specific users")
-print("  ✓ User Profile - Get detailed user information")
 print("  ✓ Comments - Read post comments")
 print("  ✓ Related Posts - Find similar content")
+print("\n🚧 Coming Soon:")
+print("  - User Posts - Get posts from specific users")
+print("  - User Profile - Get detailed user information")
 
 print("\n💡 All APIs support:")
 print("  - Automatic token generation")
