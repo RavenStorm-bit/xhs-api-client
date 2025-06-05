@@ -70,6 +70,7 @@ def demo_token_generation():
     
     # Generate X-S-Common token
     print("   Requesting X-S-Common token (device fingerprint)...")
+    print("   Note: Using default device ID (a1) since no cookies provided")
     try:
         start_time = time.time()
         xs_common = token_manager.get_xs_common_token()
@@ -172,9 +173,14 @@ def demo_token_generation():
     print("✓ Cookies needed for actual data access")
     
     print("\nNext steps:")
-    print("1. Get XiaoHongShu cookies")
+    print("1. Get XiaoHongShu cookies (includes your device ID 'a1')")
     print("2. Try the full client with: python xhs_client.py")
     print("3. Deploy your own token server for production use")
+    
+    print("\n📝 About Device ID (a1):")
+    print("- Each XHS account has a unique device ID in cookies")
+    print("- Demo uses a default ID when no cookies provided")
+    print("- Real API calls require your actual device ID from cookies")
     
     print("\n⭐ Star the repo if you found this helpful!")
     print("   https://github.com/RavenStorm-bit/xhs-api-client")
