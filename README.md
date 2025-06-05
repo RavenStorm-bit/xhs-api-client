@@ -2,8 +2,17 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![Demo Server](https://img.shields.io/badge/Demo_Server-Online-brightgreen)](https://31.97.132.244:8443/docs)
 
-A secure Python client for XiaoHongShu (Little Red Book / 小红书) API with token server architecture.
+A secure Python client for XiaoHongShu (Little Red Book / 小红书) API. **Zero config required!**
+
+```python
+from xhs_client import XHSClient
+
+# Just need cookies.json!
+client = XHSClient()
+posts = client.get_homefeed_posts()
+```
 
 ## 🎯 Try It Now!
 
