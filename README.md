@@ -5,11 +5,24 @@
 
 A secure Python client for XiaoHongShu (Little Red Book / 小红书) API with token server architecture.
 
+## 🎯 Try It Now!
+
+```bash
+# Test the demo server
+python test_server.py
+
+# Run the interactive demo
+python demo.py
+```
+
+We provide a **demo token server** for testing! You can immediately see how the API works without setting up your own server. The demo server has rate limits - for production use, you'll need to deploy your own server.
+
 ## 🚨 Important Notice
 
-This client requires a **token generation server** (not included) that handles the authentication algorithms. The server code is proprietary and kept separate for security reasons. You need to either:
-- Deploy your own token server implementing the required endpoints
-- Get access to an existing token server
+This client requires a **token generation server** that handles the authentication algorithms. You can:
+- Use our demo server for testing (included in demo.py)
+- Deploy your own token server for production use
+- Contact us for dedicated server access
 
 ## Features
 
@@ -49,12 +62,25 @@ pip install -r requirements.txt
 
 ## Quick Start
 
+### 🚀 Try the Demo First!
+
+```bash
+# See it in action immediately
+python demo.py
+```
+
 ### 1. Initialize Token Manager
 
 ```python
 from token_manager import TokenManager
 
-# Connect to token server
+# For testing - use our demo server
+token_manager = TokenManager(
+    server_url="https://31.97.132.244:8443",  # Demo server
+    api_key="dev-key-123"                      # Demo API key
+)
+
+# For production - use your own server
 token_manager = TokenManager(
     server_url="https://your-token-server.com:8443",
     api_key="your-api-key"
