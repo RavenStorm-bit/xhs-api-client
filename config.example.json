@@ -1,0 +1,11 @@
+{
+  "token_server": {
+    "url": "https://your-token-server.com:8443",
+    "api_key": "your-api-key-here"
+  },
+  "cookies_path": "cookies.json",
+  "logging": {
+    "enabled": true,
+    "directory": "api_logs"
+  }
+}
